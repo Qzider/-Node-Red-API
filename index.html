@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sensor Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f2f5;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 320px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .metric {
+            margin: 12px 0;
+            font-size: 1.1rem;
+        }
+
+        .val {
+            font-weight: bold;
+            color: #0070f3;
+        }
+
+        .time {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>Robot Status</h2>
+        <div class="metric">CycleStart: <span class="val" id="RobotAutoVerify_CycleStart">-</span></div>
+        <div class="metric">CycleComplete: <span class="val" id="RobotAutoVerify_CycleComplete">-</span></div>
+        <div class="metric">CycleNo: <span class="val" id="RobotAutoVerify_CycleNo">-</span></div>
+        <div class="time">อัปเดตล่าสุด: <span id="time">-</span></div>
+    </div>
+
+    <script>
+        // เปลี่ยนเป็น URL ของ Server (localhost หรือ Cloud URL)
+        const API_URL = 'http://localhost:3000/api/sensor';
+
+        async function fetchData() {
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+
+                document.getElementById('RobotAutoVerify_CycleStart').textContent = data.CycleStart || '-';
+                document.getElementById('RobotAutoVerify_CycleComplete').textContent = data.CycleComplete ?? '-';
+                document.getElementById('RobotAutoVerify_CycleNo').textContent = data.CycleNo ?? '-';
+                document.getElementById('time').textContent = data.updated_at ? new Date(data.updated_at).toLocaleTimeString('th-TH') : '-';
+            } catch (err) {
+                console.error("ไม่สามารถดึงข้อมูลได้:", err);
+            }
+        }
+
+        // ดึงข้อมูลครั้งแรกทันทีที่เปิดเว็บ และดึงซ้ำทุกๆ 3 วินาที (Polling)
+        fetchData();
+        setInterval(fetchData, 3000);
+    </script>
+</body>
+
+</html>
